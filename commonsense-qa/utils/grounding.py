@@ -1,6 +1,7 @@
 from multiprocessing import Pool
 import spacy
 from spacy.matcher import Matcher
+import en_core_web_sm
 from tqdm import tqdm
 import nltk
 import json
@@ -55,12 +56,13 @@ def create_pattern(nlp, doc, debug=False):
 
 def create_matcher_patterns(cpnet_vocab_path, output_path, debug=False):
     cpnet_vocab = load_cpnet_vocab(cpnet_vocab_path)
-    nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner', 'textcat'])
+    # nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner', 'textcat'])
+    nlp = en_core_web_sm.load(disable=['parser', 'ner', 'textcat'])
     docs = nlp.pipe(cpnet_vocab)
     all_patterns = {}
 
     if debug:
-        f = open("filtered_concept.txt", "w")
+        f = open("filtered_concept.txt", "w", encoding='utf-8')
 
     for doc in tqdm(docs, total=len(cpnet_vocab)):
 
@@ -111,7 +113,9 @@ def ground_qa_pair(qa_pair):
     global nlp, matcher
     # print('load matcher')
     if nlp is None or matcher is None:
-        nlp = spacy.load('en_core_web_sm', disable=['ner', 'parser', 'textcat'])
+        # nlp = spacy.load('en_core_web_sm', disable=['ner', 'parser', 'textcat'])
+        nlp = en_core_web_sm.load(disable=['parser', 'ner', 'textcat'])
+        
         nlp.add_pipe(nlp.create_pipe('sentencizer'))
         matcher = load_matcher(nlp, PATTERN_PATH)
 
@@ -316,7 +320,7 @@ def ground(statement_path, cpnet_vocab_path, pattern_path, output_path, num_proc
     sents = []
     answers = []
     print('load statement')
-    with open(statement_path, 'r') as fin:
+    with open(statement_path, 'r', encoding='utf-8') as fin:
         lines = [line for line in fin]
 
     if debug:
@@ -346,7 +350,7 @@ def ground(statement_path, cpnet_vocab_path, pattern_path, output_path, num_proc
 
     # check_path(output_path)
     print('output to file')
-    with open(output_path, 'w') as fout:
+    with open(output_path, 'w', encoding='utf-8') as fout:
         for dic in res:
             fout.write(json.dumps(dic) + '\n')
 
@@ -360,7 +364,8 @@ if __name__ == "__main__":
 
     # s = "a revolving door is convenient for two direction travel, but it also serves as a security measure at a bank."
     # a = "bank"
-    # nlp = spacy.load('en_core_web_sm', disable=['ner', 'parser', 'textcat'])
+    # # nlp = spacy.load('en_core_web_sm', disable=['ner', 'parser', 'textcat'])
+    # nlp = en_core_web_sm.load(disable=['parser', 'ner', 'textcat'])
     # nlp.add_pipe(nlp.create_pipe('sentencizer'))
     # ans_words = nlp(a)
     # doc = nlp(s)
