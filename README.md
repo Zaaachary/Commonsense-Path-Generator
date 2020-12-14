@@ -9,15 +9,14 @@ Code folders:
 
 (2) `commonse-qa`: use the generator to generate paths and then train the qa system on task dataset.
 
-(3) `A-Commonsense-Path-Generator-for-Connecting-Entities.ipynb`: The notebook illustrating how to use our proposed generator to connect a pair of entities
-with a commonsense relational path. 
+(3) `A-Commonsense-Path-Generator-for-Connecting-Entities.ipynb`: The notebook illustrating how to use our proposed generator to connect a pair of entities with a commonsense relational path. 
 
 Part of this code and instruction rely on our another project [[code](https://github.com/INK-USC/MHGRN)][[arxiv](https://arxiv.org/abs/2005.00646)].  Please cite both of our works if you use this code. Thanks!
 ```
 @article{wang2020connecting,
   title={Connecting the Dots: A Knowledgeable Path Generator for Commonsense Question Answering},
   author={Wang, Peifeng and Peng, Nanyun and Szekely, Pedro and Ren, Xiang},
-  journal={arXiv preprint arXiv:2005.00691},
+  journal={arXiv preprint arXiv:2005.00691}, 
   year={2020}
 }
 
@@ -49,6 +48,7 @@ python -m spacy download en
 ```
 
 ## For training a path generator
+
 ```bash
 cd learning-generator
 cd data
@@ -91,7 +91,8 @@ To preprocess the data, run:
 python preprocess.py
 ```
 
-### 3. Using the path generator to connect question-answer entities 
+### 3. Using the path generator to connect question-answer entities
+
 (Modify ./config/path_generate.config to specify the dataset and gpu device)
 
 ```bash
@@ -99,7 +100,9 @@ python preprocess.py
 ```
 
 ### 4. Commonsense QA system training
+
 ```bash
 bash scripts/run_main.sh ./config/csqa.config
 ```
 Training process and final evaluation results would be stored in './saved_models/'
+

@@ -163,17 +163,19 @@ def construct_graph(cpnet_csv_path, cpnet_vocab_path, output_path, prune=True):
 
     blacklist = set(["uk", "us", "take", "make", "object", "person", "people"])  # issue: mismatch with the blacklist in grouding.py
 
+    # concept <-> id
     concept2id = {}
     id2concept = {}
     with open(cpnet_vocab_path, "r", encoding="utf8") as fin:
         id2concept = [w.strip() for w in fin]
     concept2id = {w: i for i, w in enumerate(id2concept)}
 
+    # relation <-> id
     id2relation = merged_relations
     relation2id = {r: i for i, r in enumerate(id2relation)}
 
     graph = nx.MultiDiGraph()
-    nrow = sum(1 for _ in open(cpnet_csv_path, 'r', encoding='utf-8'))
+    nrow = sum(1 for _ in open(cpnet_csv_path, 'r', encoding='utf-8'))  # 行数
     with open(cpnet_csv_path, "r", encoding="utf8") as fin:
 
         def not_save(cpt):
@@ -193,6 +195,7 @@ def construct_graph(cpnet_csv_path, cpnet_vocab_path, output_path, prune=True):
             subj = concept2id[ls[1]]
             obj = concept2id[ls[2]]
             weight = float(ls[3])
+            # 剪枝
             if prune and (not_save(ls[1]) or not_save(ls[2]) or id2relation[rel] == "hascontext"):
                 continue
             # if id2relation[rel] == "relatedto" or id2relation[rel] == "antonym":
@@ -208,7 +211,7 @@ def construct_graph(cpnet_csv_path, cpnet_vocab_path, output_path, prune=True):
                 graph.add_edge(obj, subj, rel=rel + len(relation2id), weight=weight)
                 attrs.add((obj, subj, rel + len(relation2id)))
 
-    nx.write_gpickle(graph, output_path)
+    nx.write_gpickle(graph, output_path)    # 建图
     print(f"graph file saved to {output_path}")
     print()
 

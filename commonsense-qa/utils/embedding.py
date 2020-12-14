@@ -44,20 +44,31 @@ def glove2npy(glove_path, output_npy_path, output_vocab_path, skip_head=False,
     print(f'GloVe vocab saved to {output_vocab_path}')
     print()
 
+# import pdb
 
 def load_vectors_from_npy_with_vocab(glove_npy_path, glove_vocab_path, vocab, verbose=True, save_path=None):
+    '''
+    vocab: vocab of cpnet, len 799273 list, e.g. 'seeing_distant_object_more_closely'
+    trans
+    '''
+    # index of glove word
     with open(glove_vocab_path, 'r', encoding='utf-8') as fin:
         glove_w2idx = {line.strip(): i for i, line in enumerate(fin)}
-    glove_emb = np.load(glove_npy_path)
+    
+    # pdb.set_trace()
+
+    glove_emb = np.load(glove_npy_path)     # 516787, 300
     vectors = np.zeros((len(vocab), glove_emb.shape[1]), dtype=float)
     oov_cnt = 0
+    # traverse cpnet vocab and get their glvoe emb
     for i, word in enumerate(vocab):
         if word in glove_w2idx:
             vectors[i] = glove_emb[glove_w2idx[word]]
         else:
-            oov_cnt += 1
+            oov_cnt += 1   # out of vocab
     if verbose:
         print(len(vocab))
+        # word out of vocab rate
         print('embedding oov rate: {:.4f}'.format(oov_cnt / len(vocab)))
     if save_path is None:
         return vectors
@@ -65,10 +76,11 @@ def load_vectors_from_npy_with_vocab(glove_npy_path, glove_vocab_path, vocab, ve
 
 
 def load_pretrained_embeddings(glove_npy_path, glove_vocab_path, vocab_path, verbose=True, save_path=None):
-    vocab = []
+    vocab = []      # glove vocab
     with open(vocab_path, 'r', encoding='utf-8') as fin:
         for line in fin.readlines():
             vocab.append(line.strip())
+    
     load_vectors_from_npy_with_vocab(glove_npy_path=glove_npy_path, glove_vocab_path=glove_vocab_path, vocab=vocab, verbose=verbose, save_path=save_path)
 
 

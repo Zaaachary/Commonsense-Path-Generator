@@ -43,11 +43,13 @@ BLANK_STR = "___"
 
 
 def convert_to_entailment(qa_file: str, output_file: str, ans_pos: bool=False):
+    # 转换 csqa 数据集
     print(f'converting {qa_file} to entailment dataset...')
     nrow = sum(1 for _ in open(qa_file, 'r', encoding='utf-8'))
     with open(output_file, 'w', encoding='utf-8') as output_handle, open(qa_file, 'r', encoding='utf-8') as qa_handle:
-        # print("Writing to {} from {}".format(output_file, qa_file))
+        print("Writing to {} from {}".format(output_file, qa_file))
         for line in tqdm(qa_handle, total=nrow):
+            # 读取每个example
             json_line = json.loads(line)
             output_dict = convert_qajson_to_entailment(json_line, ans_pos)
             output_handle.write(json.dumps(output_dict))
@@ -64,7 +66,8 @@ def convert_qajson_to_entailment(qa_json: dict, ans_pos: bool):
         choice_text = choice["text"]
         pos = None
         if not ans_pos:
-            statement = create_hypothesis(get_fitb_from_question(question_text), choice_text, ans_pos)
+            fitb = get_fitb_from_question(question_text)
+            statement = create_hypothesis(fitb, choice_text, ans_pos)   # 创建假设
         else:
             statement, pos = create_hypothesis(get_fitb_from_question(question_text), choice_text, ans_pos)
         create_output_dict(qa_json, statement,  choice["label"] == qa_json.get("answerKey", "A"), ans_pos, pos)

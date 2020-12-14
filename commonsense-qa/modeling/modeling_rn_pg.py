@@ -176,7 +176,6 @@ class LMRelationNet(nn.Module):
         logits = logits.view(bs, nc)
         return logits, attn
 
-
 class LMRelationNetDataLoader(object):
 
     def __init__(self, path_embedding_path, train_statement_path, train_rpath_jsonl,

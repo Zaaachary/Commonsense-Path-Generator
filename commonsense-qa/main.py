@@ -31,7 +31,7 @@ def evaluate_accuracy(eval_set, model):
 
 def pred_to_file(eval_set, model, output_path):
     model.eval()
-    fw = open(output_path, 'w')
+    fw = open(output_path, 'w', encoding='utf-8')
     with torch.no_grad():
         for qids, labels, *input_data in eval_set:
             logits, _ = model(*input_data)
@@ -133,9 +133,9 @@ def train(args):
     config_path = os.path.join(args.save_dir, 'config.json')
     model_path = os.path.join(args.save_dir, 'model.pt')
     log_path = os.path.join(args.save_dir, 'log.csv')
-    export_config(args, config_path)
+    export_config(args, config_path)    # 输出 config
     check_path(model_path)
-    with open(log_path, 'w') as fout:
+    with open(log_path, 'w', encoding='utf-8') as fout:
         fout.write('step,train_acc,dev_acc\n')
 
     ###################################################################################################
@@ -295,7 +295,7 @@ def train(args):
         print('-' * 71)
         print('| epoch {:5} | dev_acc {:7.4f} | test_acc {:7.4f} |'.format(epoch_id, dev_acc, test_acc))
         print('-' * 71)
-        with open(log_path, 'a') as fout:
+        with open(log_path, 'a', encoding='utf-8') as fout:
             fout.write('{},{},{}\n'.format(global_step, dev_acc, test_acc))
         if dev_acc >= best_dev_acc:
             best_dev_acc = dev_acc
@@ -355,7 +355,7 @@ def pred(args):
     print(f'| dataset: {old_args.dataset} | save_dir: {args.save_dir} |')
 
     for output_path, data_loader in ([(test_pred_path, dataset.test())] if dataset.test_size() > 0 else []):
-        with torch.no_grad(), open(output_path, 'w') as fout:
+        with torch.no_grad(), open(output_path, 'w', encoding='utf-8') as fout:
             for qids, labels, *input_data in tqdm(data_loader):
                 logits, _ = model(*input_data)
                 for qid, pred_label in zip(qids, logits.argmax(1)):

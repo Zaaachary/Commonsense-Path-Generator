@@ -178,14 +178,14 @@ def main():
         'common': [
             {'func': glove2npy, 'args': (input_paths['glove']['txt'], output_paths['glove']['npy'], output_paths['glove']['vocab'])},
             {'func': glove2npy, 'args': (input_paths['numberbatch']['txt'], output_paths['numberbatch']['npy'], output_paths['numberbatch']['vocab'], True)},
-            {'func': extract_english, 'args': (input_paths['cpnet']['csv'], output_paths['cpnet']['csv'], output_paths['cpnet']['vocab'])},
+            # {'func': extract_english, 'args': (input_paths['cpnet']['csv'], output_paths['cpnet']['csv'], output_paths['cpnet']['vocab'])},       # 生成 cpnet 的词表
             {'func': load_pretrained_embeddings,
-             'args': (output_paths['numberbatch']['npy'], output_paths['numberbatch']['vocab'], output_paths['cpnet']['vocab'], False, output_paths['numberbatch']['concept_npy'])},
+             'args': (output_paths['numberbatch']['npy'], output_paths['numberbatch']['vocab'], output_paths['cpnet']['vocab'], True, output_paths['numberbatch']['concept_npy'])},
             {'func': construct_graph, 'args': (output_paths['cpnet']['csv'], output_paths['cpnet']['vocab'],
                                                output_paths['cpnet']['unpruned-graph'], False)},
             {'func': construct_graph, 'args': (output_paths['cpnet']['csv'], output_paths['cpnet']['vocab'],
                                                output_paths['cpnet']['pruned-graph'], True)},
-            {'func': create_matcher_patterns, 'args': (output_paths['cpnet']['vocab'], output_paths['cpnet']['patterns'])},
+            {'func': create_matcher_patterns, 'args': (output_paths['cpnet']['vocab'], output_paths['cpnet']['patterns'], True)},   # 799273 pattern  xxx_xxx -> xxx xxx
         ],
         'csqa': [
             {'func': convert_to_entailment, 'args': (input_paths['csqa']['train'], output_paths['csqa']['statement']['train'])},
