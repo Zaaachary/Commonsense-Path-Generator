@@ -52,6 +52,7 @@ def create_pattern(doc, debug=False):
         pattern.append({"LEMMA": token.lemma_})
     if debug:
         return True, doc.text
+    
     return pattern
 
 

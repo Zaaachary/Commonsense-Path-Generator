@@ -185,7 +185,7 @@ def main():
                                                output_paths['cpnet']['unpruned-graph'], False)},
             {'func': construct_graph, 'args': (output_paths['cpnet']['csv'], output_paths['cpnet']['vocab'],
                                                output_paths['cpnet']['pruned-graph'], True)},
-            {'func': create_matcher_patterns, 'args': (output_paths['cpnet']['vocab'], output_paths['cpnet']['patterns'], True)},   # 799273 pattern  xxx_xxx -> xxx xxx
+            {'func': create_matcher_patterns, 'args': (output_paths['cpnet']['vocab'], output_paths['cpnet']['patterns'], False)},   # 799273 pattern  xxx_xxx -> xxx xxx
         ],
         'csqa': [
             {'func': convert_to_entailment, 'args': (input_paths['csqa']['train'], output_paths['csqa']['statement']['train'])},
