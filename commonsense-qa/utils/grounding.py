@@ -1,6 +1,7 @@
 from multiprocessing import Pool
 import spacy
 from spacy.matcher import Matcher
+import en_core_web_sm
 from tqdm import tqdm
 import nltk
 import json
@@ -18,7 +19,7 @@ blacklist = set(["-PRON-", "actually", "likely", "possibly", "want",
                  ])
 
 
-nltk.download('stopwords', quiet=True)
+# nltk.download('stopwords', quiet=True)
 nltk_stopwords = nltk.corpus.stopwords.words('english')
 
 # CHUNK_SIZE = 1
@@ -36,9 +37,10 @@ def load_cpnet_vocab(cpnet_vocab_path):
     return cpnet_vocab
 
 
-def create_pattern(nlp, doc, debug=False):
+def create_pattern(doc, debug=False):
     pronoun_list = set(["my", "you", "it", "its", "your", "i", "he", "she", "his", "her", "they", "them", "their", "our", "we"])
     # Filtering concepts consisting of all stop words and longer than four words.
+    # import pdb; pdb.set_trace()
     if len(doc) >= 5 or doc[0].text in pronoun_list or doc[-1].text in pronoun_list or \
             all([(token.text in nltk_stopwords or token.lemma_ in nltk_stopwords or token.lemma_ in blacklist) for token in doc]):
         if debug:
@@ -50,21 +52,24 @@ def create_pattern(nlp, doc, debug=False):
         pattern.append({"LEMMA": token.lemma_})
     if debug:
         return True, doc.text
+    
     return pattern
 
 
 def create_matcher_patterns(cpnet_vocab_path, output_path, debug=False):
     cpnet_vocab = load_cpnet_vocab(cpnet_vocab_path)
-    nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner', 'textcat'])
-    docs = nlp.pipe(cpnet_vocab)
+    # nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner', 'textcat'])
+    nlp = en_core_web_sm.load(disable=['parser', 'ner', 'textcat'])
+    docs = nlp.pipe(cpnet_vocab)    # vocab after spacy 
     all_patterns = {}
 
     if debug:
-        f = open("filtered_concept.txt", "w")
+        f = open("filtered_concept.txt", "w", encoding='utf-8')
 
+    # traverse cpnet_vocab
     for doc in tqdm(docs, total=len(cpnet_vocab)):
 
-        pattern = create_pattern(nlp, doc, debug)
+        pattern = create_pattern(doc, debug)
         if debug:
             if not pattern[0]:
                 f.write(pattern[1] + '\n')
@@ -98,11 +103,14 @@ def lemmatize(nlp, concept):
 
 
 def load_matcher(nlp, pattern_path):
-    with open(pattern_path, "r", encoding="utf8") as fin:
+    with open(pattern_path, "r", encoding="utf-8") as fin:
         all_patterns = json.load(fin)
 
     matcher = Matcher(nlp.vocab)
+    # import pdb; pdb.set_trace()
     for concept, pattern in all_patterns.items():
+        # import pdb; pdb.set_trace()
+        # 'ab_extra', [True, 'ab extra']
         matcher.add(concept, None, pattern)
     return matcher
 
@@ -111,8 +119,11 @@ def ground_qa_pair(qa_pair):
     global nlp, matcher
     # print('load matcher')
     if nlp is None or matcher is None:
-        nlp = spacy.load('en_core_web_sm', disable=['ner', 'parser', 'textcat'])
+        # nlp = spacy.load('en_core_web_sm', disable=['ner', 'parser', 'textcat'])
+        nlp = en_core_web_sm.load(disable=['parser', 'ner', 'textcat'])
         nlp.add_pipe(nlp.create_pipe('sentencizer'))
+        # print('PATTERN_PATH', PATTERN_PATH)     # None
+        PATTERN_PATH = "./data/cpnet/matcher_patterns.json"
         matcher = load_matcher(nlp, PATTERN_PATH)
 
     s, a = qa_pair
@@ -244,7 +255,11 @@ def hard_ground(nlp, sent, cpnet_vocab):
 
 
 def match_mentioned_concepts(sents, answers, num_processes):
+    # print('PATTERN_PATH', PATTERN_PATH)
     res = []
+    # for qa_pair in tqdm(zip(sents, answers)):
+    #     result = ground_qa_pair(qa_pair)
+    #     res.append(result)
     with Pool(num_processes) as p:
         res = list(tqdm(p.imap(ground_qa_pair, zip(sents, answers)), total=len(sents)))
     return res
@@ -307,22 +322,27 @@ def prune(data, cpnet_vocab_path):
 
 
 def ground(statement_path, cpnet_vocab_path, pattern_path, output_path, num_processes=1, debug=False):
+    '''
+    {'func': ground, 'args': (output_paths['csqa']['statement']['train'], output_paths['cpnet']['vocab'],
+                            output_paths['cpnet']['patterns'], output_paths['csqa']['grounded']['train'], args.nprocs)},
+    '''
     global PATTERN_PATH, CPNET_VOCAB
     print('load cnpt vocab')
     if PATTERN_PATH is None:
         PATTERN_PATH = pattern_path
         CPNET_VOCAB = load_cpnet_vocab(cpnet_vocab_path)
 
-    sents = []
+    sents = []  # 存储statements
     answers = []
     print('load statement')
-    with open(statement_path, 'r') as fin:
+    with open(statement_path, 'r', encoding='utf-8') as fin:
         lines = [line for line in fin]
 
     if debug:
         lines = lines[192:195]
         print(len(lines))
     print('parse statement')
+    # lines a example of statement
     for line in lines:
         if line == "":
             continue
@@ -338,7 +358,6 @@ def ground(statement_path, cpnet_vocab_path, pattern_path, output_path, num_proc
             except Exception:
                 print(ans)
             answers.append(ans)
-
     print('match mention concept')
     res = match_mentioned_concepts(sents, answers, num_processes)
     print('prune')
@@ -346,7 +365,7 @@ def ground(statement_path, cpnet_vocab_path, pattern_path, output_path, num_proc
 
     # check_path(output_path)
     print('output to file')
-    with open(output_path, 'w') as fout:
+    with open(output_path, 'w', encoding='utf-8') as fout:
         for dic in res:
             fout.write(json.dumps(dic) + '\n')
 
@@ -360,7 +379,8 @@ if __name__ == "__main__":
 
     # s = "a revolving door is convenient for two direction travel, but it also serves as a security measure at a bank."
     # a = "bank"
-    # nlp = spacy.load('en_core_web_sm', disable=['ner', 'parser', 'textcat'])
+    # # nlp = spacy.load('en_core_web_sm', disable=['ner', 'parser', 'textcat'])
+    # nlp = en_core_web_sm.load(disable=['parser', 'ner', 'textcat'])
     # nlp.add_pipe(nlp.create_pipe('sentencizer'))
     # ans_words = nlp(a)
     # doc = nlp(s)

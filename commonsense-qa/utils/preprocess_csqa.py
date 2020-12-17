@@ -42,7 +42,7 @@ class PreprocessData_Ground(object):
     def load_context(self, data_path):
         data_context = []
         question_context = []
-        with open(data_path, 'r') as fr:
+        with open(data_path, 'r', encoding='utf-8') as fr:
             for _id, line in enumerate(tqdm(fr)):
                 obj = json.loads(line)
                 qc_list = obj['qc']

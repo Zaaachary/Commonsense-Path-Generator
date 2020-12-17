@@ -31,8 +31,6 @@ def load_kg(data_dir):
     return kg_full, kg_simple
 
 def random_walk(start_node, kg_full, kg_simple, max_len=3):
-
-
     edges_before_t_iter = 0
     # while True:
     #     curr_node = random.randint(0, nr_nodes-1) 
@@ -117,7 +115,7 @@ def path2str(path, i2r, i2e, r2i):
 if __name__ == '__main__':
     data_dir = './data/conceptnet/'
     output_dir = './data/sample_path'
-    num_paths = [10, 8, 6]
+    num_patlhs = [10, 8, 6]
     path_lens = [2, 3, 4] # 1,2,3 hop
 
     print('loading relation weight and vocab')

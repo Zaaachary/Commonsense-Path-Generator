@@ -2,8 +2,8 @@ import argparse
 
 
 def ensemble(input_files, output):
-    in_files = [open(file, 'r') for file in input_files]  # list of fin handlers
-    with open(output, 'w') as fout:
+    in_files = [open(file, 'r', encoding='utf-8') for file in input_files]  # list of fin handlers
+    with open(output, 'w', encoding='utf-8') as fout:
         for *lines, in zip(*in_files):
             qids = [line.strip().split(',')[0] for line in lines]
             answers = [line.strip().split(',')[1] for line in lines]
