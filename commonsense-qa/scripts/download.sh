@@ -1,10 +1,10 @@
 # download ConceptNet
 mkdir -p data/
 mkdir -p data/cpnet/
-wget -nc -P data/cpnet/ https://s3.amazonaws.com/conceptnet/downloads/2018/edges/conceptnet-assertions-5.6.0.csv.gz
-wget -nc -P data/cpnet/ https://csr.s3-us-west-1.amazonaws.com/tzw.ent.npy 
+# wget -nc -P data/cpnet/ https://s3.amazonaws.com/conceptnet/downloads/2018/edges/conceptnet-assertions-5.6.0.csv.gz
+# wget -nc -P data/cpnet/ https://csr.s3-us-west-1.amazonaws.com/tzw.ent.npy 
 cd data/cpnet/
-yes n | gzip -d conceptnet-assertions-5.6.0.csv.gz
+# yes n | gzip -d conceptnet-assertions-5.6.0.csv.gz
 cd ../../
 
 # download GloVe vectors
@@ -49,14 +49,14 @@ mkdir -p data/csqa/tokenized/
 mkdir -p data/csqa/roberta/
 
 # download OpenBookQA dataset
-wget -nc -P data/obqa/ https://s3-us-west-2.amazonaws.com/ai2-website/data/OpenBookQA-V1-Sep2018.zip
-yes n | unzip data/obqa/OpenBookQA-V1-Sep2018.zip -d data/obqa/
+# wget -nc -P data/obqa/ https://s3-us-west-2.amazonaws.com/ai2-website/data/OpenBookQA-V1-Sep2018.zip
+# yes n | unzip data/obqa/OpenBookQA-V1-Sep2018.zip -d data/obqa/
 
 # create output folders
 mkdir -p data/obqa/fairseq/
 mkdir -p data/obqa/fairseq/official/
 mkdir -p data/obqa/fairseq/inhouse/
-wget -nc -O data/obqa/fairseq/official/dict.txt https://dl.fbaipublicfiles.com/fairseq/gpt2_bpe/dict.txt
+# wget -nc -O data/obqa/fairseq/official/dict.txt https://dl.fbaipublicfiles.com/fairseq/gpt2_bpe/dict.txt
 mkdir -p data/obqa/grounded/
 mkdir -p data/obqa/paths/
 mkdir -p data/obqa/graph/
