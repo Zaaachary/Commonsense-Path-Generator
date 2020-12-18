@@ -132,3 +132,6 @@ dmypy.json
 data/
 ckpt/
 gpt2/
+cache/
+saved_models/
+path_embeddings/

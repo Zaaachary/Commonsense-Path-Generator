@@ -21,7 +21,7 @@ from modeling.generator import *
 
 torch.set_num_threads(4)
 
-# for REPRODUCIBILITY
+# for REPRODUCIBILITY   可复制性
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
@@ -46,36 +46,48 @@ def run_generating(args):
 
     logger.info('Loading data & model')
 
-    config = GPT2Config.from_pretrained(args.generator_type, cache_dir='../cache/')
+    config = GPT2Config.from_pretrained('../gpt2')
+    # config = GPT2Config.from_pretrained(args.generator_type, cache_dir='../cache/')
     datahelper = DataHelper(args)
 
-    path_embedding_file = os.path.join('./path_embeddings/', args.data_dir, 'path_embedding.pickle')
 
     # self define lm head gpt2
-    gpt = GPT2Model.from_pretrained(args.generator_type, cache_dir='../cache/')
+    gpt = GPT2Model.from_pretrained('../gpt2')
+    # gpt = GPT2Model.from_pretrained(args.generator_type, cache_dir='../cache/')
     config.vocab_size = len(datahelper.gpt_tokenizer)
     gpt.resize_token_embeddings(len(datahelper.gpt_tokenizer))
     pretrain_generator_ckpt = os.path.join('./saved_models/pretrain_generator', 'model.ckpt')
     generator = Generator(gpt, config, max_len=args.output_len).to(args.device)
     generator.load_state_dict(torch.load(pretrain_generator_ckpt, map_location=args.device))
 
-    save_path_embedding(datahelper, generator, path_embedding_file, args)
+    # 加入 tokenizer 来进行解码
+    tokenizer = GPT2Tokenizer.from_pretrained('../gpt2')
+    tokenizer.add_tokens(['<PAD>'])
+    tokenizer.add_tokens(['<SEP>'])
+    tokenizer.add_tokens(['<END>'])
+    config.vocab_size = len(tokenizer)
+
+    # path_embedding_file = os.path.join('./path_embeddings/', args.data_dir, 'path_embedding.pickle')
+    path_embedding_path = os.path.join('./path_embeddings/', args.data_dir)
+    save_path_embedding(datahelper, generator, path_embedding_path, args, tokenizer)
+
+    # save_path_embedding(datahelper, generator, path_embedding_file, args)
     print('Finish.')
 
 def main():
     parser = argparse.ArgumentParser(description='Run main.')
     parser.add_argument('--data_dir', type=str)
     parser.add_argument('--gen_dir', type=str, default='./checkpoints/pretrain_generator')
-    parser.add_argument('--gen_id', type=int)
+    # parser.add_argument('--gen_id', type=int)
     parser.add_argument('--sparsity', type=float, default=1.0)
 
     # model
-    parser.add_argument('--generator_type', type=str)
-    parser.add_argument('--text_encoder', type=str)
-    parser.add_argument('--batch_size', type=int)
-    parser.add_argument('--run_id', type=int)
-    parser.add_argument('--output_len', type=int)
-    parser.add_argument('--context_len', type=int)
+    parser.add_argument('--generator_type', type=str)   # csqa
+    parser.add_argument('--text_encoder', type=str)     # gpt2
+    parser.add_argument('--batch_size', type=int)       # 8
+    # parser.add_argument('--run_id', type=int)
+    parser.add_argument('--output_len', type=int)       # 31
+    parser.add_argument('--context_len', type=int)      # 16
   
     # gpu option
     parser.add_argument('--gpu_device', type=str, default='0')

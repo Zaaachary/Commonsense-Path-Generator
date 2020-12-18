@@ -66,6 +66,8 @@ Then you can start to train the path generator by running
 ./run.sh $gpu_device
 ```
 
+`python -u main.py  --data_dir sample_path --save_dir checkpoints --model gpt2 --learning_rate 1e-5 --warmup_steps 500 --weight_decay 0 --batch_size 64 --num_epoch 10 --gpu_device 2`
+
 The checkpoint of the path generator would be stored in './checkpoints/model.ckpt'. 
 Move it to '../commonsense-qa/saved_models/pretrain_generator'.
 So far, we are done with training the generator.
@@ -98,6 +100,10 @@ python preprocess.py
 ```bash
 ./scripts/run_generate.sh
 ```
+
+`python -u calc_path_embedding.py --data_dir csqa --generator_type gpt2 --batch_size 8 --context_len 16 --output_len 31 --gpu_device 0`
+
+
 
 ### 4. Commonsense QA system training
 
