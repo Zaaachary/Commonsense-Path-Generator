@@ -20,6 +20,7 @@ def load_rel_weight(data_dir):
     return rel_weight
 
 def load_kg(data_dir):
+    # use networkx to load cpnet
     print("loading cpnet....")
     data_path = os.path.join(data_dir, 'conceptnet_graph.nx')
     kg_full = nx.read_gpickle(data_path)
@@ -84,6 +85,7 @@ def random_walk(start_node, kg_full, kg_simple, max_len=3):
     return path 
 
 def load_vocab(data_dir):
+    # load i2r, r2i, i2e, e2i
     rel_path = os.path.join(data_dir, 'relation_vocab.pkl')
     ent_path = os.path.join(data_dir, 'entity_vocab.pkl')
 
@@ -115,7 +117,7 @@ def path2str(path, i2r, i2e, r2i):
 if __name__ == '__main__':
     data_dir = './data/conceptnet/'
     output_dir = './data/sample_path'
-    num_patlhs = [10, 8, 6]
+    num_paths = [10, 8, 6]
     path_lens = [2, 3, 4] # 1,2,3 hop
 
     print('loading relation weight and vocab')
@@ -142,7 +144,7 @@ if __name__ == '__main__':
             not_visited_idx.append(cnpt_idx)
     print('not visited: {}'.format(len(not_visited_idx)))
 
-    with open(output_path, 'w') as fw:
+    with open(output_path, 'w', encoding='utf-8') as fw:
         for curr_node in tqdm(not_visited_idx, desc='generating paths'):
             if not curr_node in kg_simple:
                 continue 

@@ -15,6 +15,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset, SequentialSampler, RandomSampler
 
 def _get_path_embedding_greedy(dataset, generator, args, tokenizer=None, output_file=None):
+    # return context_embedding
     data_sampler = SequentialSampler(dataset)
     dataloader = DataLoader(dataset, sampler=data_sampler, batch_size=args.batch_size)
     generator.eval()
@@ -42,12 +43,25 @@ def _get_path_embedding_greedy(dataset, generator, args, tokenizer=None, output_
     path_embeddings = torch.tensor(path_embeddings, dtype=torch.float)
     return path_embeddings
 
-def save_path_embedding(datahelper, generator, save_file, args):
+# def save_path_embedding(datahelper, generator, save_file, args):
+#     path_embeddings_dict = {}
+#     path_embeddings_dict['train'] = _get_path_embedding_greedy(datahelper.trainset, generator, args)
+#     path_embeddings_dict['dev'] = _get_path_embedding_greedy(datahelper.devset, generator, args)
+#     path_embeddings_dict['test'] = _get_path_embedding_greedy(datahelper.testset, generator, args)
+
+#     with open(save_file, 'wb') as handle:
+#         pickle.dump(path_embeddings_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+def save_path_embedding(datahelper, generator, save_dir, args, tokenizer):
+    save_file = os.path.join(save_dir, 'path_embedding.pickle')
+
     path_embeddings_dict = {}
-    path_embeddings_dict['train'] = _get_path_embedding_greedy(datahelper.trainset, generator, args)
-    path_embeddings_dict['dev'] = _get_path_embedding_greedy(datahelper.devset, generator, args)
-    path_embeddings_dict['test'] = _get_path_embedding_greedy(datahelper.testset, generator, args)
+    with open(os.path.join(save_dir, 'train_path'), 'w', encoding='utf-8') as output_file:
+        path_embeddings_dict['train'] = _get_path_embedding_greedy(datahelper.trainset, generator, args, tokenizer, output_file)
+    with open(os.path.join(save_dir, 'dev_path'), 'w', encoding='utf-8') as output_file:
+        path_embeddings_dict['dev'] = _get_path_embedding_greedy(datahelper.devset, generator, args, tokenizer, output_file)
+    with open(os.path.join(save_dir, 'test_path'), 'w', encoding='utf-8') as output_file:
+        path_embeddings_dict['test'] = _get_path_embedding_greedy(datahelper.testset, generator, args, tokenizer, output_file)
 
     with open(save_file, 'wb') as handle:
         pickle.dump(path_embeddings_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
