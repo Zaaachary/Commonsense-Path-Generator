@@ -103,6 +103,10 @@ python preprocess.py
 
 `python -u calc_path_embedding.py --data_dir csqa --generator_type gpt2 --batch_size 8 --context_len 16 --output_len 31 --gpu_device 0`
 
+python -u calc_path_embedding.py --data_dir csqa --generator_type gpt2 --batch_size 8 --context_len 16 --output_len 31 --gpu_device 0
+
+
+
 
 
 ### 4. Commonsense QA system training

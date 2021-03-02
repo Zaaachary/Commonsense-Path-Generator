@@ -49,7 +49,7 @@ class Generator(nn.Module):
     def forward(self, inputs, train=False, return_path=False):
         # input: [batch, seq]
         context_len = inputs.size(1)
-        print(context_len)
+        # print(context_len)
         generated = inputs
         next_token = inputs
         past = None
